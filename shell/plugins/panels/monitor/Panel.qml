@@ -69,6 +69,7 @@ Panel {
   property string focusSection: "scale"
   property int selectedIndex: 0
   property bool cursorActive: false
+  property bool monitorPowerFocused: false
 
   // Text size slider — curated macOS-style notches (px). The panel snaps to
   // these stops; the CLI (omarchy-display-text-size) accepts any integer in range.
@@ -122,6 +123,7 @@ Panel {
   }
 
   function moveCursor(delta) {
+    monitorPowerFocused = false
     var sections = visibleSections
     if (!sections || sections.length === 0) return
     var sIdx = sections.indexOf(focusSection)
@@ -151,10 +153,12 @@ Panel {
     }
   }
 
-  // h/l: in scale section, walks the preset row; everywhere else, no-op
-  // because adjustBrightness handles horizontal motion on the brightness
-  // slider.
+  // h/l switches between display selection and power, or walks preset rows.
   function moveCursorH(delta) {
+    if (focusSection === "monitors") {
+      monitorPowerFocused = delta > 0
+      return
+    }
     if (focusSection !== "scale" && focusSection !== "orientation" && focusSection !== "apply") return
     var count = sectionCount(focusSection)
     var next = selectedIndex + delta
@@ -186,7 +190,10 @@ Panel {
     }
     if (focusSection === "monitors" && selectedIndex >= 0 && selectedIndex < displays.length) {
       var d = displays[selectedIndex]
-      if (d) selectDisplay(d.name)
+      if (d) {
+        if (monitorPowerFocused) toggleDisplay(d.name, d.enabled)
+        else selectDisplay(d.name)
+      }
     }
     // brightness: no separate action; the slider value is the action.
   }
@@ -466,6 +473,7 @@ Panel {
       focusSection = "monitors"
       selectedIndex = 0
       cursorActive = false
+      monitorPowerFocused = false
     }
   }
 
@@ -600,7 +608,7 @@ Panel {
         else if (dx !== 0) {
           if (root.focusSection === "brightness") root.adjustBrightness(dx * 5)
           else if (root.focusSection === "textsize") root.adjustTextSize(dx)
-          else if (root.focusSection === "scale" || root.focusSection === "orientation" || root.focusSection === "apply") root.moveCursorH(dx)
+          else root.moveCursorH(dx)
         }
       }
       onActivateRequested: if (root.cursorActive) root.activateCursor()
@@ -1085,8 +1093,9 @@ Panel {
 
     readonly property bool isFocused: display && display.name === root.selectedMonitor
     readonly property bool canSelect: display && display.enabled && !root.settingsBusy
+    readonly property bool cursorOnRow: root.cursorActive && root.focusSection === "monitors" && root.selectedIndex === rowIndex
 
-    hasCursor: root.cursorActive && root.focusSection === "monitors" && root.selectedIndex === rowIndex
+    hasCursor: cursorOnRow && !root.monitorPowerFocused
     onHasCursorChanged: if (hasCursor) root.ensureCursorVisible(monitorRow)
     current: isFocused
     foreground: root.bar.foreground
@@ -1146,6 +1155,7 @@ Panel {
         root.cursorActive = true
         root.focusSection = "monitors"
         root.selectedIndex = monitorRow.rowIndex
+        root.monitorPowerFocused = false
       }
       onClicked: if (monitorRow.canSelect) root.selectDisplay(monitorRow.display.name)
     }
@@ -1160,6 +1170,15 @@ Panel {
       fontFamily: root.bar.fontFamily
       fontSize: Style.font.caption
       bordered: true
+      hasCursor: monitorRow.cursorOnRow && root.monitorPowerFocused
+      onHasCursorChanged: if (hasCursor) root.ensureCursorVisible(monitorRow)
+      onHovered: function(hovered) {
+        if (!hovered || root.reflowingText) return
+        root.cursorActive = true
+        root.focusSection = "monitors"
+        root.selectedIndex = monitorRow.rowIndex
+        root.monitorPowerFocused = true
+      }
       enabled: !root.settingsBusy && !root.settingsDirty && root.stateFresh
         && (!monitorRow.display.enabled || root.enabledDisplayCount > 1)
       onClicked: root.toggleDisplay(monitorRow.display.name, monitorRow.display.enabled)
