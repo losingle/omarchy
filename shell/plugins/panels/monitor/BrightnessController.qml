@@ -156,6 +156,7 @@ Item {
         root.value = 0
       }
       if (root.pendingValue >= 0) Qt.callLater(root.flush)
+      else if (requestRevision !== root.revision) Qt.callLater(root.read)
     }
   }
 }
