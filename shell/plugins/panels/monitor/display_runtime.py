@@ -46,4 +46,3 @@ def operation_lock():
     except BlockingIOError:
       raise OperationBusy('Another display operation is still running') from None
     yield lock
-

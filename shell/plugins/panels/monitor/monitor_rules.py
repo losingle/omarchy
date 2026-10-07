@@ -107,5 +107,3 @@ def plan(source, monitors, name, transform, scale=None):
       if overlaps(first, second) and not overlaps(previous[first['name']], previous[second['name']]):
         raise ValueError('This change would overlap another display; adjust the display layout first')
   return updated, expected
-
-
