@@ -7,6 +7,9 @@ import subprocess
 import time
 from contextlib import contextmanager
 
+class OperationBusy(ValueError):
+  pass
+
 def hypr(*args, timeout=10):
   result = subprocess.run(['hyprctl', *args], capture_output=True, text=True, check=True, timeout=timeout)
   return result.stdout.strip()
@@ -41,7 +44,6 @@ def operation_lock():
     try:
       fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
-      raise ValueError('Another orientation change is still running') from None
+      raise OperationBusy('Another display operation is still running') from None
     yield lock
-
 

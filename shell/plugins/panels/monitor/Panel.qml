@@ -247,7 +247,10 @@ Panel {
       brightness: root.brightnessAvailable ? root.brightnessPercent : null,
       brightnessAvailable: root.brightnessAvailable,
       brightnessTarget: brightnessControl.targetName,
-      brightnessStatus: brightnessControl.available ? "available" : brightnessControl.checked ? "unavailable" : "loading",
+      brightnessStatus: brightnessControl.status,
+      brightnessScope: brightnessControl.scope,
+      brightnessAffectedDisplays: brightnessControl.affectedDisplays,
+      brightnessBackend: brightnessControl.backend,
       brightnessError: brightnessControl.error,
       selectedMonitor: root.selectedMonitor,
       focusedMonitor: root.focusedMonitor,
@@ -332,6 +335,7 @@ Panel {
     helperDirectory: root.helperDirectory
     targetName: root.selectedMonitor
     identity: root.selectedIdentity
+    hardwareIdentity: root.orientationDisplay ? (root.orientationDisplay.brightnessIdentity || "") : ""
     active: root.opened
     suspended: orientationProc.running
   }
@@ -730,7 +734,7 @@ Panel {
 
               PanelSectionHeader {
                 id: brightnessHeader
-                text: "BRIGHTNESS · " + root.selectedMonitor
+                text: brightnessControl.scope === "shared" ? "SHARED BRIGHTNESS" : "BRIGHTNESS · " + root.selectedMonitor
                 foreground: root.bar.foreground
                 fontFamily: root.bar.fontFamily
                 anchors.left: parent.left
@@ -792,11 +796,15 @@ Panel {
 
             Text {
               width: parent.width
-              visible: !root.brightnessAvailable || brightnessControl.error !== ""
+              visible: !root.brightnessAvailable || brightnessControl.error !== "" || brightnessControl.scope !== "display"
               textFormat: Text.PlainText
-              text: brightnessControl.error || (!brightnessControl.checked
+              text: brightnessControl.error || (brightnessControl.status === "loading"
                 ? "Reading this display's brightness…"
-                : "Brightness control is unavailable for this display. Use its physical controls.")
+                : brightnessControl.scope === "shared"
+                  ? "Adjusts " + brightnessControl.affectedDisplays.join(", ") + " together."
+                  : root.brightnessAvailable
+                    ? "Controlled by the monitor; linked panels may change together."
+                    : "Brightness control is unavailable for this display.")
               wrapMode: Text.Wrap
               color: Qt.darker(root.bar.foreground, 1.4)
               font.family: root.bar.fontFamily

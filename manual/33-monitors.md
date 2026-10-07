@@ -50,6 +50,8 @@ You can also checkout [Hyprmon](https://github.com/erans/hyprmon/), if you'd lik
 
 ### Controlling brightness
 
+In the Display panel, brightness targets the display you selected. Some monitors link the backlights of multiple panels; selecting a video output does not necessarily separate those controls. When the panel cannot identify a control safely or communicate with it, it shows the reason instead of adjusting another screen. Brightness-key behavior remains as described below.
+
 Monitor brightness is controlled by the dedicated function keys for brightness up/down. If you hold down shift while pressing these, you'll go to maximum or minimum brightness. The keys control the display you're focused on, so external monitors that speak DDC/CI are adjusted the same way as the laptop screen.
 
 ### Apple Displays
