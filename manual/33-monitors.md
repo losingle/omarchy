@@ -1,5 +1,11 @@
 # Monitors
 
+The Display panel lets you choose a connected display before changing its settings. **Identify displays** briefly shows the matching number on each screen. Selecting a different display also shows its number.
+
+Choose an orientation or scale, then select **Apply changes**. **Discard** restores the values shown by the display. Brightness changes immediately when a usable brightness control is available. Text size applies to all displays. Separate **Enable** and **Disable** buttons control whether each display is active; the last active display cannot be disabled here.
+
+Saving orientation and scale currently requires a simple, explicit monitor rule in `monitors.lua`. Complex Lua configurations and ambiguous rules are left untouched and reported in the panel. Side-by-side, top-aligned displays keep touching when their width changes; other layouts may require manual adjustment before applying a change.
+
 Omarchy assumes you're running on a 2x-capable retina-class display by default. This is what you need to get those nice, crisp programmer fonts. It's what almost all new premium laptops with high-resolution screens are optimized for. It's what you'd want to run on a 27" 5K [Apple Studio Display](https://www.apple.com/studio-display/)/[ProArt PA27JCV](https://www.asus.com/us/displays-desktops/monitors/proart/proart-display-5k-pa27jcv/)/[Samsung S9](https://www.samsung.com/us/computing/monitors/5k/27-viewfinity-s9-5k-monitor-with-thunderbolt-4-matte-display-and-smart-features-ls27c900panxza/)/[Kuycon G27P](https://kuycon.us/monitors/G27P/) or 32" 6K [Apple XDR](https://www.apple.com/pro-display-xdr/)/[ProArt PA32QCV](https://www.asus.com/displays-desktops/monitors/proart/proart-display-6k-pa32qcv/)/[Kuycon G32P](https://kuycon.us/monitors/G32P/).
 
 But if you're not running a display with a PPI of 218 or above, you'll want to change the monitor settings. For example, if you have a 27" or 32" 4K, you can use fractional scaling by opening `~/.config/hypr/monitors.lua` (via _Setup > Monitors_ in the Omarchy menu) and switching to the recommendation for that combo:
